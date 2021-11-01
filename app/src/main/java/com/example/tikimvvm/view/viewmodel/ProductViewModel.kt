@@ -5,14 +5,15 @@ import androidx.lifecycle.ViewModel
 import com.example.tikimvvm.db.dao.CategoryDAO
 import com.example.tikimvvm.models.DataX
 import com.example.tikimvvm.repository.TikiRepository
+import com.example.tikimvvm.view.binding.BindableAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ProductViewModel(private val dao: CategoryDAO) : ViewModel() {
-    private var productList: MutableLiveData<List<DataX>> =
-        MutableLiveData<List<DataX>>().apply { value = emptyList() }
+    var productList: MutableLiveData<List<DataX>> =
+            MutableLiveData<List<DataX>>().apply { value = emptyList() }
 
     private var tikiRepository = TikiRepository.getInstance(dao)
 

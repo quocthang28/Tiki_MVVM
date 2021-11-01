@@ -48,13 +48,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun getData() {
         categoryViewModel.getCategoryList(0, 20)
+        productViewModel.getProductList(0, 20)
     }
 
     private fun initializeRecyclerViews() {
         categoryListAdapter = CategoryListAdapter()
         activityMainBinding.categoryList.apply {
             layoutManager =
-                LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+                    LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
             adapter = categoryListAdapter
         }
 
@@ -71,8 +72,8 @@ class MainActivity : AppCompatActivity() {
 //                    categoryListAdapter.setData(it)
 //                })
 
-        productViewModel.getProductList(0, 20).observe(this, Observer {
-            productListAdapter.setData(it)
-        })
+//        productViewModel.getProductList(0, 20).observe(this, Observer {
+//            productListAdapter.setData(it)
+//        })
     }
 }

@@ -47,6 +47,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:foregroundGravity="fill"
+            app:dataList="@{productViewModel.productList}"
             tools:listitem="@layout/product" />
     </LinearLayout>
 </layout>
