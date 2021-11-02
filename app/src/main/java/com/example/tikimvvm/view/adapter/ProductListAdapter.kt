@@ -1,22 +1,24 @@
 package com.example.tikimvvm.view.adapter
 
+import android.icu.text.NumberFormat
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.tikimvvm.databinding.ProductBinding
 import com.example.tikimvvm.models.DataX
+import com.example.tikimvvm.utils.NumberUtils
 import com.example.tikimvvm.view.binding.BindableAdapter
+import java.util.*
 
 class ProductListAdapter : RecyclerView.Adapter<ProductListAdapter.ViewHolder>(), BindableAdapter<DataX> {
 
     private var productList: List<DataX>? = listOf()
 
-//    fun setData(categoryList: List<DataX>) {
-//        this.productList = categoryList
-//        notifyDataSetChanged()
-//    }
-
+    override fun setData(items: List<DataX>) {
+        productList = items
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -39,15 +41,12 @@ class ProductListAdapter : RecyclerView.Adapter<ProductListAdapter.ViewHolder>()
             RecyclerView.ViewHolder(binding.root) {
         fun bind(product: DataX?) {
             binding.productName.text = product?.name
-            binding.productPrice.text = product?.price.toString()
+            binding.productPrice.text = NumberUtils.formatCurrency(product?.price)
             Glide.with(itemView.context).load(product?.thumbnail_url)
                     .into(binding.productImage)
             //binding.executePendingBindings()
         }
+
     }
 
-    override fun setData(items: List<DataX>) {
-        productList = items
-        notifyDataSetChanged()
-    }
 }

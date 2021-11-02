@@ -8,11 +8,11 @@
 
         <variable
             name="categoryViewModel"
-            type="com.example.tikimvvm.view.viewmodel.CategoryViewModel" />
+            type="com.example.tikimvvm.viewmodel.CategoryViewModel" />
 
         <variable
             name="productViewModel"
-            type="com.example.tikimvvm.view.viewmodel.ProductViewModel" />
+            type="com.example.tikimvvm.viewmodel.ProductViewModel" />
     </data>
 
     <LinearLayout

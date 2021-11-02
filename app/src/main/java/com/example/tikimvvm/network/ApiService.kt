@@ -9,14 +9,20 @@ interface ApiService {
 
     @GET("shopping-trend/api/trendings/hub")
     suspend fun getAllCategory(
-        @Query("cursor") cursor: Int,
-        @Query("limit") limit: Int
+            @Query("cursor") cursor: Int,
+            @Query("limit") limit: Int
     ): Response<TikiModel>
 
     @GET("shopping-trend/api/trendings/hub")
     suspend fun getAllProduct(
-        @Query("cursor") cursor: Int,
-        @Query("limit") limit: Int
+            @Query("cursor") cursor: Int,
+            @Query("limit") limit: Int
+    ): Response<TikiModel>
+
+    @GET("/shopping-trend/api/trendings/hub/category_id/23246")
+    suspend fun getNextPageProductList(
+            @Query("page") page: Int,
+            @Query("limit") limit: Int
     ): Response<TikiModel>
 
 //    companion object {

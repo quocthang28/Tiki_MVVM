@@ -1,4 +1,4 @@
-package com.example.tikimvvm.view.viewmodel
+package com.example.tikimvvm.viewmodel
 
 import android.util.Log
 import androidx.databinding.BaseObservable
@@ -50,7 +50,7 @@ class CategoryViewModel(private val dao: CategoryDAO) : BaseObservable() {
         Log.i("myTag", "Saving data")
         for (category in categories) {
             val cate: Category =
-                Category(category.category_id!!, category.images.first(), category.title!!)
+                    Category(category.category_id!!, category.images.first(), category.title!!)
             dao.insertCategory(cate)
         }
     }

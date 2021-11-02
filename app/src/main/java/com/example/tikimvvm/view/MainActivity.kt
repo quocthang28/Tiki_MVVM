@@ -2,19 +2,20 @@ package com.example.tikimvvm.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.tikimvvm.R
 import com.example.tikimvvm.databinding.ActivityMainBinding
 import com.example.tikimvvm.db.TikiDatabase
 import com.example.tikimvvm.utils.ViewModelFactory
 import com.example.tikimvvm.view.adapter.CategoryListAdapter
 import com.example.tikimvvm.view.adapter.ProductListAdapter
-import com.example.tikimvvm.view.viewmodel.CategoryViewModel
-import com.example.tikimvvm.view.viewmodel.ProductViewModel
+import com.example.tikimvvm.viewmodel.CategoryViewModel
+import com.example.tikimvvm.viewmodel.ProductViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var categoryListAdapter: CategoryListAdapter
@@ -59,10 +60,20 @@ class MainActivity : AppCompatActivity() {
             adapter = categoryListAdapter
         }
 
+        var nextPage = 1;
         productListAdapter = ProductListAdapter()
         activityMainBinding.productList.apply {
             layoutManager = GridLayoutManager(this@MainActivity, 2)
             adapter = productListAdapter
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (!recyclerView.canScrollVertically(1)) {
+                        nextPage += 1
+                        productViewModel.getNextPageProductList(nextPage, 10)
+                        Log.i("myTag", "$nextPage")
+                    }
+                }
+            })
         }
     }
 

@@ -13,7 +13,7 @@ class TikiRepository private constructor(private val dao: CategoryDAO) {
     private var categoryList: MutableList<Item> = mutableListOf()
 
     private var productList: MutableLiveData<List<ProductModel>> =
-        MutableLiveData<List<ProductModel>>().apply { value = emptyList() }
+            MutableLiveData<List<ProductModel>>().apply { value = emptyList() }
 
     companion object {
         private var instance: TikiRepository? = null
@@ -28,11 +28,13 @@ class TikiRepository private constructor(private val dao: CategoryDAO) {
     }
 
     suspend fun getCategoryList(cursor: Int, limit: Int) =
-        RestClient.getInstance().getApiService().getAllCategory(cursor, limit)
+            RestClient.getInstance().getApiService().getAllCategory(cursor, limit)
 
 
     suspend fun getProductList(cursor: Int, limit: Int) =
-        RestClient.getInstance().getApiService().getAllProduct(cursor, limit)
+            RestClient.getInstance().getApiService().getAllProduct(cursor, limit)
+
+    suspend fun getNextPageProductList(page: Int, limit: Int) = RestClient.getInstance().getApiService().getNextPageProductList(page, limit)
 
     //database related method
     suspend fun checkEmpty(): Category? {
