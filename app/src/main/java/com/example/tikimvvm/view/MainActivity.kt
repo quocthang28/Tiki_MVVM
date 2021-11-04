@@ -1,8 +1,16 @@
 package com.example.tikimvvm.view
 
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -11,11 +19,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tikimvvm.R
 import com.example.tikimvvm.databinding.ActivityMainBinding
 import com.example.tikimvvm.db.TikiDatabase
+import com.example.tikimvvm.service.Actions
+import com.example.tikimvvm.service.LocationService
 import com.example.tikimvvm.utils.ViewModelFactory
 import com.example.tikimvvm.view.adapter.CategoryListAdapter
 import com.example.tikimvvm.view.adapter.ProductListAdapter
 import com.example.tikimvvm.viewmodel.CategoryViewModel
 import com.example.tikimvvm.viewmodel.ProductViewModel
+import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity() {
     private lateinit var categoryListAdapter: CategoryListAdapter
@@ -45,6 +56,21 @@ class MainActivity : AppCompatActivity() {
         getData()
         initializeRecyclerViews()
         initializeObservers()
+
+        findViewById<Button>(R.id.startService).let {
+            it.setOnClickListener {
+                print("START THE FOREGROUND SERVICE ON DEMAND")
+                actionOnService(Actions.START)
+            }
+        }
+
+        findViewById<Button>(R.id.stopService).let {
+            it.setOnClickListener {
+                print("STOP THE FOREGROUND SERVICE ON DEMAND")
+                actionOnService(Actions.STOP)
+            }
+        }
+
     }
 
     private fun getData() {
@@ -69,8 +95,8 @@ class MainActivity : AppCompatActivity() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     if (!recyclerView.canScrollVertically(1)) {
                         nextPage += 1
+                        Log.i("myTag", "loading page $nextPage")
                         productViewModel.getNextPageProductList(nextPage, 10)
-                        Log.i("myTag", "$nextPage")
                     }
                 }
             })
@@ -86,5 +112,18 @@ class MainActivity : AppCompatActivity() {
 //        productViewModel.getProductList(0, 20).observe(this, Observer {
 //            productListAdapter.setData(it)
 //        })
+    }
+
+    private fun actionOnService(action: Actions) {
+        Intent(this, LocationService::class.java).also {
+            it.action = action.name
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                print("Starting the service in >=26 Mode")
+                startForegroundService(it)
+                return
+            }
+            print("Starting the service in < 26 Mode")
+            startService(it)
+        }
     }
 }
