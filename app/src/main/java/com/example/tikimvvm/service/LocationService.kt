@@ -12,7 +12,6 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.tikimvvm.R
 import com.example.tikimvvm.db.TikiDatabase
@@ -122,7 +121,8 @@ class LocationService : Service() {
                     val gcd = Geocoder(baseContext, Locale.getDefault())
                     val addresses: List<Address> = gcd.getFromLocation(location.latitude, location.longitude, 1)
                     Log.i("myTag", addresses[0].getAddressLine(0).toString())
-                    writeToLocal(UserLocation(0, latitude, longitude, addresses[0].getAddressLine(0), numOfSatellites, 0.0))
+                    val hdop = (locationResult.locations[0].accuracy / 5).toDouble()
+                    writeToLocal(UserLocation(0, latitude, longitude, addresses[0].getAddressLine(0), numOfSatellites, hdop))
                 }
             }
 
@@ -130,9 +130,6 @@ class LocationService : Service() {
         }
     }
 
-//    private fun calculateHDOP() {
-//        val accuracy = locationManager.get
-//    }
 
     private fun writeToLocal(userLocation: UserLocation) {
         val dao = TikiDatabase.getInstance(applicationContext).userLocationDAO
