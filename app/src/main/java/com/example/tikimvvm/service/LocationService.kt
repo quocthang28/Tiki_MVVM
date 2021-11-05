@@ -11,10 +11,17 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.tikimvvm.R
+import com.example.tikimvvm.db.TikiDatabase
+import com.example.tikimvvm.db.entity.UserLocation
 import com.example.tikimvvm.view.MainActivity
 import com.google.android.gms.location.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 
@@ -23,36 +30,52 @@ class LocationService : Service() {
     private var isServiceStarted = false
     private lateinit var client: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
-    private lateinit var gnssStatusCallback: GnssStatus.Callback
-    private var locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
 
+    private lateinit var locationManager: LocationManager
+    private lateinit var gnssCallback: GnssStatus.Callback
 
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
+    private var numOfSatellites = 0
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null) {
-            val action = intent.action
-            when (action) {
+            when (intent.action) {
                 Actions.START.name -> startService()
                 Actions.STOP.name -> stopService()
             }
-        } else {
-            print(
-                    "with a null intent. It has been probably restarted by the system."
-            )
         }
-        // by returning this we make sure the service is restarted if the system kills the service
         return START_STICKY
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate() {
         super.onCreate()
         val notification = createNotification()
+
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        val permission = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            gnssCallback = object : GnssStatus.Callback() {
+                override fun onSatelliteStatusChanged(status: GnssStatus) {
+                    super.onSatelliteStatusChanged(status)
+                    numOfSatellites = status.satelliteCount
+                }
+            }
+
+            locationManager.registerGnssStatusCallback(gnssCallback)
+        }
+
         client = LocationServices.getFusedLocationProviderClient(this)
         startForeground(1, notification)
     }
@@ -69,10 +92,12 @@ class LocationService : Service() {
         startLocationUpdate()
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun stopService() {
         Toast.makeText(this, "Service stopping", Toast.LENGTH_SHORT).show()
         isServiceStarted = false
         client.removeLocationUpdates(locationCallback)
+        locationManager.unregisterGnssStatusCallback(gnssCallback)
     }
 
     private fun startLocationUpdate() {
@@ -97,7 +122,7 @@ class LocationService : Service() {
                     val gcd = Geocoder(baseContext, Locale.getDefault())
                     val addresses: List<Address> = gcd.getFromLocation(location.latitude, location.longitude, 1)
                     Log.i("myTag", addresses[0].getAddressLine(0).toString())
-                    
+                    writeToLocal(UserLocation(0, latitude, longitude, addresses[0].getAddressLine(0), numOfSatellites, 0.0))
                 }
             }
 
@@ -105,8 +130,15 @@ class LocationService : Service() {
         }
     }
 
-    private fun writeToLocal() {
+//    private fun calculateHDOP() {
+//        val accuracy = locationManager.get
+//    }
 
+    private fun writeToLocal(userLocation: UserLocation) {
+        val dao = TikiDatabase.getInstance(applicationContext).userLocationDAO
+        CoroutineScope(Dispatchers.Main).launch {
+            dao.insertUserLocation(userLocation)
+        }
     }
 
     private fun createNotification(): Notification {

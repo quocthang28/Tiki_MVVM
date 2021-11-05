@@ -59,14 +59,17 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.startService).let {
             it.setOnClickListener {
-                print("START THE FOREGROUND SERVICE ON DEMAND")
-                actionOnService(Actions.START)
+                if (ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 1)
+                } else {
+                    actionOnService(Actions.START)
+                }
             }
         }
 
         findViewById<Button>(R.id.stopService).let {
             it.setOnClickListener {
-                print("STOP THE FOREGROUND SERVICE ON DEMAND")
                 actionOnService(Actions.STOP)
             }
         }

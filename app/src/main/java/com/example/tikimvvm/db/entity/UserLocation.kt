@@ -16,7 +16,7 @@ data class UserLocation(
 
         val address: String,
 
-        val numOfSatellite: Double,
+        val numOfSatellite: Int,
 
         val hdop: Double,
 )
